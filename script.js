@@ -5,7 +5,7 @@
  * B：dataは「氾濫発生までの水位(cm)」なので -data/100 m に変換
  */
 
-const WORKER_API_URL = "https://damsystem-26.kansuu805030.workers.dev/";
+const WORKER_API_URL = "https://yamada-api.kansuu805030.workers.dev/";
 
 const stations = [
   {
