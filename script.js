@@ -93,6 +93,7 @@ function ymdCompact(d){
 
 function cameraUrl(spec){
   const d = shiftedTime(spec.offset);
+  d.setMinutes(Math.floor(d.getMinutes() / 10) * 10);
   const stamp = ymdCompact(d);
 
   if(spec.kind === "river"){
