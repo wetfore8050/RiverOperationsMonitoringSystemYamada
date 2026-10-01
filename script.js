@@ -5,6 +5,8 @@
  * B：dataは「氾濫発生までの水位(cm)」なので -data/100 m に変換
  */
 
+const WORKER_API_URL = "https://damsystem-26.kansuu805030.workers.dev/";
+
 const stations = [
   {
     id:"shimotakakura", name:"下高倉", type:"河川カメラ", status:"green", statusText:"カメラ",
@@ -72,9 +74,15 @@ function floorMinute(date){
   return d;
 }
 
+function floor10Minutes(date){
+  const d = floorMinute(date);
+  d.setMinutes(Math.floor(d.getMinutes() / 10) * 10);
+  return d;
+}
+
 function shiftedTime(offsetMinutes){
   const d = new Date(Date.now() - offsetMinutes*60000);
-  return floorMinute(d);
+  return floor10Minutes(d);
 }
 
 function ymd(d){
@@ -108,10 +116,21 @@ function cameraLabel(offset, normal=false){
   return offset === 10 || offset === 20 ? "直近" : "約30分前";
 }
 
+function apiProxyUrl(targetUrl){
+  if(!WORKER_API_URL || WORKER_API_URL.includes("YOUR-WORKER")){
+    throw new Error("Cloudflare Worker URLが未設定です。script.js の WORKER_API_URL を設定してください。");
+  }
+  return WORKER_API_URL + "?url=" + encodeURIComponent(targetUrl);
+}
+
 async function fetchJson(url){
   if(cache.has(url)) return cache.get(url);
-  const response = await fetch(url, {cache:"no-store"});
-  if(!response.ok) throw new Error(`HTTP ${response.status}`);
+  const response = await fetch(apiProxyUrl(url), {cache:"no-store"});
+  if(!response.ok) {
+    let detail = "";
+    try { detail = await response.text(); } catch(e) {}
+    throw new Error(`HTTP ${response.status}${detail ? " / " + detail.slice(0,160) : ""}`);
+  }
   const data = await response.json();
   cache.set(url,data);
   return data;
@@ -140,7 +159,9 @@ function normalizeData(station, raw){
     return {time:t, value};
   }).filter(Boolean);
 
-  const end = Date.now();
+  if(!data.length) return [];
+  data.sort((a,b) => a.time - b.time);
+  const end = data[data.length - 1].time.getTime();
   const start = end - 12*60*60*1000;
   return data.filter(x => x.time.getTime() >= start && x.time.getTime() <= end);
 }
@@ -181,22 +202,41 @@ function makeLevelAnnotations(levels){
   return result;
 }
 
+function makeLevelDatasets(station, data){
+  if(!data.length) return [];
+  const first = data[0].time.getTime();
+  const last = data[data.length-1].time.getTime();
+  return Object.entries(station.levels || {}).map(([key,value]) => {
+    const info = levelInfo[key];
+    return {
+      label:`${key}: ${info.name} (${value.toFixed(2)}m)`,
+      data:[{x:first,y:value},{x:last,y:value}],
+      borderColor:info.color,
+      borderWidth:2,
+      borderDash:[6,4],
+      pointRadius:0,
+      fill:false,
+      tension:0
+    };
+  });
+}
+
 function makeChart(station, data){
   const canvas = document.getElementById(`chart-${station.id}`);
   if(!canvas) return;
-
   if(charts[station.id]) charts[station.id].destroy();
 
   const datasets = [{
     label:"水位",
-    data:data.map(x=>({x:x.time,y:x.value})),
+    data:data.map(x=>({x:x.time.getTime(),y:x.value})),
     borderColor:"#1769aa",
     backgroundColor:"rgba(23,105,170,.08)",
     borderWidth:3,
     pointRadius:2,
     tension:.25,
-    fill:true
-  }];
+    fill:true,
+    order:10
+  }, ...makeLevelDatasets(station,data)];
 
   charts[station.id] = new Chart(canvas,{
     type:"line",
@@ -209,22 +249,18 @@ function makeChart(station, data){
         x:{
           type:"linear",
           ticks:{
-            callback:v => {
-              const d=new Date(v);
-              return d.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
-            },
+            callback:v => new Date(v).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"}),
             maxTicksLimit:7
           },
           grid:{color:"#e7edf1"}
         },
-        y:{
-          title:{display:true,text:"水位 (m)"},
-          grid:{color:"#e7edf1"}
-        }
+        y:{title:{display:true,text:"水位 (m)"},grid:{color:"#e7edf1"}}
       },
       plugins:{
-        legend:{display:false},
-        annotation:{annotations:makeLevelAnnotations(station.levels)}
+        legend:{display:true,position:"bottom",labels:{filter:item => item.datasetIndex > 0}},
+        tooltip:{callbacks:{title(items){
+          return items.length ? new Date(items[0].parsed.x).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}) : "";
+        }}}
       }
     }
   });
