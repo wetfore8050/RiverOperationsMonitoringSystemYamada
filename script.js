@@ -307,6 +307,7 @@ function makeNormalCamera(url){
 
 function urlTimeText(offset){
   const d=shiftedTime(offset);
+  d.setMinutes(Math.floor(d.getMinutes() / 10) * 10);
   return d.toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});
 }
 
