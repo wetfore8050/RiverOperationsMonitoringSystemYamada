@@ -1,0 +1,28 @@
+*{box-sizing:border-box}
+:root{--bg:#f3f6f8;--card:#fff;--text:#17212b;--muted:#687783;--line:#d8e0e6;--blue:#1769aa}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;line-height:1.6}
+.site-header{background:linear-gradient(135deg,#0c4775,#1769aa);color:#fff;padding:26px 18px}
+.header-inner,.container{width:min(100% - 28px,1000px);margin:auto}
+.header-inner{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.eyebrow{margin:0;font-size:.8rem;opacity:.85}h1{margin:0;font-size:clamp(1.7rem,5vw,2.5rem)}.subtitle{margin:2px 0 0;opacity:.9}
+.refresh-btn{border:0;border-radius:8px;background:#fff;color:#0c4775;padding:9px 14px;font-weight:700;cursor:pointer}
+.container{padding:22px 0 45px}.overview,.station-card,.notice{background:var(--card);border-radius:14px;box-shadow:0 3px 14px #00000012}
+.overview{padding:19px;margin-bottom:18px}.overview-title{display:flex;justify-content:space-between;gap:15px}.overview h2,.notice h2{margin:0;font-size:1.2rem}.overview p{margin:3px 0;color:var(--muted)}
+.updated{text-align:right}.updated span{display:block;font-size:.75rem;color:var(--muted)}
+.station-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:15px}
+.summary-item{border:1px solid var(--line);border-radius:8px;padding:8px 4px;background:#fafcfd;text-align:center;cursor:pointer}
+.summary-item:hover{background:#e9f4fc}.summary-number{display:block;color:var(--muted);font-size:.7rem}.summary-name{display:block;font-weight:700;font-size:.82rem}
+.summary-status{font-size:.7rem;font-weight:700}
+.message{margin:10px 0;color:var(--muted);font-size:.82rem}
+.station-card{position:relative;padding:20px;margin-bottom:18px}.station-header{display:flex;justify-content:space-between;gap:10px}.station-title h3{margin:0;font-size:1.3rem}.station-type{color:var(--muted);font-size:.8rem}
+.status{border-radius:999px;padding:3px 9px;font-size:.73rem;font-weight:800;white-space:nowrap}.green{background:#e7f6ee;color:#16834b}.yellow{background:#fff4d8;color:#a16d00}.orange{background:#fff0e4;color:#c65d00}.red{background:#fde8e8;color:#c62828}
+.station-body{display:grid;grid-template-columns:220px 1fr;gap:18px;margin-top:15px}.water-panel{border:1px solid var(--line);border-radius:10px;padding:13px}.water-label{font-size:.78rem;color:var(--muted)}.water-value{font-size:2rem;font-weight:800;line-height:1.2}.unit{font-size:1rem;margin-left:3px}.change{font-weight:700}.up{color:#c62828}.down{color:#1769aa}.flat{color:var(--muted)}
+.chart-wrap{min-height:260px}.chart-title{font-size:.78rem;color:var(--muted);margin-bottom:5px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.links a{background:#1769aa;color:white;text-decoration:none;border-radius:7px;padding:7px 11px;font-size:.8rem;font-weight:700}.links a.secondary{background:#eef2f5;color:#34414c}
+.camera-section{margin-top:18px}.camera-section h4{margin:0 0 8px;font-size:.95rem}
+.camera-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.camera-card{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fafcfd}.camera-card img{width:100%;height:150px;object-fit:cover;display:block;background:#e9eef2}.camera-caption{padding:7px;font-size:.76rem;font-weight:700}.camera-time{font-size:.68rem;color:var(--muted);font-weight:400}
+.camera-error{height:150px;display:grid;place-items:center;color:var(--muted);font-size:.75rem;text-align:center;padding:10px}
+.notice{padding:17px;margin-top:25px}.notice p{color:var(--muted);font-size:.85rem}.warning{background:#fff7e7;padding:9px;border-radius:8px;color:#8a4d00!important}
+footer{background:#17212b;color:#cbd5dc;text-align:center;padding:22px;font-size:.8rem}footer a{color:#bfe4ff}
+@media(max-width:720px){.header-inner{align-items:flex-start;flex-direction:column}.station-summary{grid-template-columns:repeat(3,1fr)}.station-body{grid-template-columns:1fr}.camera-grid{grid-template-columns:1fr 1fr}.overview-title{flex-direction:column}.updated{text-align:left}}
+@media(max-width:430px){.station-summary{grid-template-columns:repeat(2,1fr)}.camera-grid{grid-template-columns:1fr}.camera-card img,.camera-error{height:190px}}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>山田川 河川監視</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <p class="eyebrow">茨城県 河川水位情報 統合ビュー</p>
+      <h1>山田川 河川監視</h1>
+      <p class="subtitle">上流から下流へ観測地点を確認</p>
+    </div>
+    <button id="refreshBtn" class="refresh-btn">↻ 更新</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="overview">
+    <div class="overview-title">
+      <div>
+        <h2>山田川の状況</h2>
+        <p>上流 → 下流の順に表示しています。</p>
+      </div>
+      <div class="updated">
+        <span>ページ更新</span>
+        <strong id="updatedAt">--:--</strong>
+      </div>
+    </div>
+    <div id="stationSummary" class="station-summary"></div>
+  </section>
+
+  <div id="message" class="message"></div>
+  <section id="stationList" class="station-list"></section>
+
+  <section class="notice">
+    <h2>注意</h2>
+    <p>このページは河川情報をまとめて確認するための試作です。水位値・カメラ画像は各公式データを利用しています。</p>
+    <p class="warning">避難の判断は、このページだけで行わず、気象庁・自治体等が発表する最新の防災情報も確認してください。</p>
+  </section>
+</main>
+
+<footer>
+  <a href="https://www.kasen.pref.ibaraki.jp/" target="_blank" rel="noopener">茨城県 河川情報システム</a>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
