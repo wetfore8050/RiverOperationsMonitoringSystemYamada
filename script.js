@@ -7,7 +7,7 @@
  * ・竜神ダムを最上流側（下高倉の上）に追加
  */
 
-const WORKER_API_BASE_URL = "https://yamada-api.kansuu805030.workers.dev/api";
+const WORKER_API_BASE_URL = "https://yamada-api.kansuu805030.workers.dev";
 
 const stations = [
   {
