@@ -179,14 +179,25 @@ function findItem(items, id, names=[]){
   return items.find(x => x.id===id) || items.find(x => names.includes(x.name));
 }
 
-function normalizeWaterData(station, raw){
+function normalizeWaterData(station, raw) {
   const data = raw.map(r => {
-    const t=parseObservationTime(r.time);
-    const n=Number(r.data);
-    if(!t || !Number.isFinite(n)) return null;
-    const value=station.dataType === "B" ? -n/100 : n;
-    return {time:t,value};
-  }).filter(Boolean).sort((a,b)=>a.time-b.time);
+    const t = parseObservationTime(r.time);
+    let n = Number(r.data);
+    if (!t || !Number.isFinite(n)) return null;
+
+    // 単位判定
+    const unit = r.unit || station.unit || "";
+
+    if (station.dataType === "B") {
+      // cm → m 換算
+      if (unit === "cm") n = -n / 100;
+      else n = -n; // m の場合
+    }
+
+    return { time: t, value: n };
+  })
+  .filter(Boolean)
+  .sort((a,b)=>a.time-b.time);
 
   if(!data.length) return [];
   const end=data[data.length-1].time.getTime();
@@ -197,12 +208,26 @@ function normalizeDamData(item){
   return (item?.data || []).slice().sort((a,b)=>a.time-b.time).filter(x=>Number.isFinite(x.value));
 }
 
+function findWaterItem(items) {
+  // まず名前で探す
+  let item = items.find(x => x.name.includes("水位"));
+  if (item) return item;
+
+  // 次に unit が m の item を探す
+  item = items.find(x => x.unit === "m");
+  if (item) return item;
+
+  // 最後に itemDataId=10 を fallback として使う
+  return items.find(x => x.id === 10) || null;
+}
+
+
 async function loadWaterData(station){
   try{
     const json=await fetchJson(station.dataUrl);
     const itemData=parseItemData(json);
-    const rawItem=findItem(itemData,10,["水位"]);
-    const data=normalizeWaterData(station,rawItem?.data || []);
+    const rawItem = findWaterItem(itemData);
+    const data = normalizeWaterData(station, rawItem?.data || []);
     return {data,rawTime:json?.tableData?.obsTime || ""};
   }catch(error){
     console.error(station.name,error);
