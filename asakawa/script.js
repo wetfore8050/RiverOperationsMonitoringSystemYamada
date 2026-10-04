@@ -11,68 +11,32 @@ const WORKER_API_BASE_URL = "https://yamada-api.kansuu805030.workers.dev";
 
 const stations = [
   {
-    id:"ryujinDam", name:"竜神ダム", type:"ダム情報", status:"green", statusText:"観測中",
-    dataType:"DAM",
-    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetDamStaData?obsTime=&obsStaId=476",
-    damLevels:{
-      minimum:136.00,
-      floodSeasonLimit:146.50,
-      normalFull:152.50,
-      emergencyStart:156.80,
-      floodFull:159.00
-    },
-    flowLevels:{
-      maxRelease:20.000,
-      flood:14.500
-    },
-    damLink:"#"
-  },
-  {
-    id:"shimotakakura", name:"下高倉", type:"河川カメラ", status:"green", statusText:"カメラ",
-    camera:{
-      recent:{kind:"ibaraki",id:"534",offset:10},
-      old:{kind:"ibaraki",id:"534",offset:40},
-      normal:"https://kasen-pref-ibaraki.jp/Layers/Camera/NomalTime/534.jpg"
-    }
-  },
-  {
-    id:"amanoya", name:"天下野", type:"水位観測点", status:"green", statusText:"観測中",
-    dataType:"A",
-    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetWaterLevelStaData?obsTime=&obsStaId=334",
-    levels:{B:1.40,C:1.90,D:2.20},
-    waterLink:"http://www.kasen.pref.ibaraki.jp/pc/graph/gra_river_277_1.html"
-  },
-  {
-    id:"kuniyasu", name:"国安", type:"危機管理型水位計", status:"yellow", statusText:"観測中",
+    id:"kamitoshikazu", name:"上利員", type:"危機管理型水位計", status:"green", statusText:"観測中",
     dataType:"B",
-    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetKikikanriStaData?obsTime=&obsStaId=454",
-    levels:{X:-3.56,E:0},
-    waterLink:"http://www.kasen.pref.ibaraki.jp/pc/kikikanri/graph.html?no=98&code=08212"
+    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetKikikanriStaData?obsTime=&obsStaId=356",
+    levels:{X:-2.06,E:0},
+    waterLink:"http://www.kasen.pref.ibaraki.jp/pc/kikikanri/graph.html?no=16&code=08212"
   },
   {
-    id:"wada", name:"和田", type:"水位観測点・河川カメラ", status:"orange", statusText:"観測中",
+    id:"okata", name:"大方", type:"水位観測点・河川カメラ", status:"green", statusText:"観測中",
     dataType:"A",
-    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetWaterLevelStaData?obsTime=&obsStaId=335",
-    levels:{B:2.60,C:3.10,D:3.60},
-    waterLink:"#",
+    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetWaterLevelStaData?obsTime=&obsStaId=164",
+    levels:{A:2.19,B:2.66,C:3.11,D:3.24,E:4.50},
+    waterLink:"http://www.kasen.pref.ibaraki.jp/pc/graph/gra_river_76_1.html?unq=1269416356&ckitv=0&ckdm=0&ckwtr=1&ckrvr=1&ckrn=0&no2=0&sb2=1&mnflg=0&tmgo=000101010000&vo=0&mty=0&rk=1&og12=0&og11=0&og10=0&og9=0&og8=0&og7=0&og6=0&og5=0&og4=0&og3=0&og2=0&og1=0&ost=0&omp=0&gm=0&go=0&gc=0&gw=0&gl=0&gn=0&gk5=0&gk4=0&gk3=0&gk2=0&gk1=0&gk=0&ga=4&sb=1&tk=0&tsw=0&tsk=0&it=0&st=1&amn=0&cn=0&fn=0&tvm=0&vm=0&pg=1&sn=0&tm=000101010000&nw=1&no=0&mp=0&dk=1&sv=1&sitept=0&nwg=1&lod=0",
     camera:{
-      recent:{kind:"ibaraki",id:"535",offset:10},
-      old:{kind:"ibaraki",id:"535",offset:40},
-      normal:"https://kasen-pref-ibaraki.jp/Layers/Camera/NomalTime/535.jpg"
+      recent:{kind:"ibaraki",id:"524",offset:20},
+      old:{kind:"ibaraki",id:"524",offset:50},
+      normal:"https://kasen-pref-ibaraki.jp/Layers/Camera/NomalTime/524.jpg"
     }
   },
   {
-    id:"tokoi", name:"常井橋", type:"水位観測点・河川カメラ", status:"red", statusText:"観測中",
-    dataType:"A",
-    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetWaterLevelStaData?obsTime=&obsStaId=333",
-    levels:{A:2.00,B:3.00,C:3.50,D:3.80,E:4.30},
-    waterLink:"#",
+    id:"gundo", name:"郡戸橋", type:"河川カメラ", status:"green", statusText:"カメラ",
     camera:{
-      recent:{kind:"river",id:"cctv_080004_31C03035",offset:20},
-      old:{kind:"river",id:"cctv_080004_31C03035",offset:50},
-      normal:"https://cam.river.go.jp/cam/normal/cctv_080004_31C03035.jpg"
+      recent:{kind:"ibaraki",id:"531",offset:10},
+      old:{kind:"ibaraki",id:"531",offset:40},
+      normal:"https://kasen-pref-ibaraki.jp/Layers/Camera/NomalTime/531.jpg"
     }
-  }
+  },
 ];
 
 const levelInfo = {
