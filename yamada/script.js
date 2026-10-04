@@ -45,7 +45,7 @@ const stations = [
   {
     id:"kuniyasu", name:"国安", type:"危機管理型水位計", status:"yellow", statusText:"観測中",
     dataType:"B",
-    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetKikikanriStaData?obsTime=&obsStaId=454",
+    dataUrl:"https://kasen-pref-ibaraki.jp/Sta/GetKikikanriStaData?obsTime=&obsStaId=367",
     levels:{X:-3.56,E:0},
     waterLink:"http://www.kasen.pref.ibaraki.jp/pc/kikikanri/graph.html?no=98&code=08212"
   },
@@ -176,32 +176,60 @@ function parseItemData(json){
 }
 
 function findItem(items, id, names=[]){
-  return items.find(x => x.id===id) || items.find(x => names.includes(x.name));
+  // まず dataItemId を優先
+  const byId = items.find(x => x.id === id && x.data?.length);
+  if(byId) return byId;
+
+  // 項目名の完全一致
+  const byExactName = items.find(x =>
+    x.data?.length && names.includes(String(x.name).trim())
+  );
+  if(byExactName) return byExactName;
+
+  // 表記ゆれに対応
+  const normalizedNames = names.map(name =>
+    String(name).replace(/[\s　]/g, "")
+  );
+
+  const byPartialName = items.find(x => {
+    if(!x.data?.length) return false;
+
+    const itemName = String(x.name).replace(/[\s　]/g, "");
+
+    return normalizedNames.some(name =>
+      itemName.includes(name)
+    );
+  });
+
+  if(byPartialName) return byPartialName;
+
+  return null;
 }
 
-function normalizeWaterData(station, raw) {
+function normalizeWaterData(station, raw){
   const data = raw.map(r => {
-    const t = parseObservationTime(r.time);
-    let n = Number(r.data);
-    if (!t || !Number.isFinite(n)) return null;
+    const t = r.time instanceof Date ? r.time : parseObservationTime(r.time);
+    const n = Number(r.value);
 
-    // 単位判定
-    const unit = r.unit || station.unit || "";
+    if(!t || !Number.isFinite(n)) return null;
 
-    if (station.dataType === "B") {
-      // cm → m 換算
-      if (unit === "cm") n = -n / 100;
-      else n = -n; // m の場合
-    }
+    // B方式は「氾濫発生までの距離(cm)」なので、
+    // 反転してmに変換する
+    const value = station.dataType === "B" ? -n / 100 : n;
 
-    return { time: t, value: n };
-  })
-  .filter(Boolean)
-  .sort((a,b)=>a.time-b.time);
+    return {time:t, value};
+  }).filter(Boolean)
+    .sort((a,b)=>a.time-b.time);
 
   if(!data.length) return [];
-  const end=data[data.length-1].time.getTime();
-  return data.filter(x=>x.time.getTime() >= end-12*60*60*1000 && x.time.getTime() <= end);
+
+  const end = data[data.length-1].time.getTime();
+
+  return data.filter(
+    x =>
+      x.time.getTime() >= end - 12 * 60 * 60 * 1000 &&
+      x.time.getTime() <= end
+  );
 }
 
 function normalizeDamData(item){
@@ -224,14 +252,75 @@ function findWaterItem(items) {
 
 async function loadWaterData(station){
   try{
-    const json=await fetchJson(station.dataUrl);
-    const itemData=parseItemData(json);
-    const rawItem = findWaterItem(itemData);
-    const data = normalizeWaterData(station, rawItem?.data || []);
-    return {data,rawTime:json?.tableData?.obsTime || ""};
+    const json = await fetchJson(station.dataUrl);
+    const itemData = parseItemData(json);
+
+    let rawItem = null;
+
+    if(station.dataType === "B"){
+      // 危機管理型水位計はA方式と項目構成が異なるため、
+      // 「氾濫発生までの距離」などの名称から探す
+      rawItem = itemData.find(x =>
+        x.data?.length &&
+        (
+          String(x.name).includes("氾濫発生まで") ||
+          String(x.name).includes("距離") ||
+          String(x.name).includes("水位")
+        )
+      );
+
+      // 名前で見つからない場合は、
+      // 実データを持っている項目を候補として探す
+      if(!rawItem){
+        rawItem = itemData.find(x => x.data?.length);
+      }
+    }else{
+      // 通常の水位観測所（A方式）
+      rawItem = findItem(itemData,10,["水位"]);
+    }
+
+    const data = normalizeWaterData(
+      station,
+      rawItem?.data || []
+    );
+
+    console.log(
+      `${station.name} API項目:`,
+      itemData.map(x => ({
+        id:x.id,
+        name:x.name,
+        unit:x.unit,
+        count:x.data?.length || 0
+      }))
+    );
+
+    if(!rawItem){
+      console.warn(
+        `${station.name}: 水位データ項目をAPIから特定できませんでした`,
+        itemData
+      );
+    }else if(!data.length){
+      console.warn(
+        `${station.name}: データ項目は見つかりましたが、有効な時系列データがありません`,
+        rawItem
+      );
+    }
+
+    return {
+      data,
+      rawTime:json?.tableData?.obsTime || "",
+      error:!rawItem
+        ? "水位データ項目を取得できませんでした。"
+        : ""
+    };
+
   }catch(error){
     console.error(station.name,error);
-    return {data:[],rawTime:"",error:error.message};
+    return {
+      data:[],
+      rawTime:"",
+      error:error.message
+    };
   }
 }
 
@@ -302,15 +391,16 @@ function makeWaterChart(station,data){
   if(charts[station.id]) charts[station.id].destroy();
 
   const datasets=[{
-    label:"水位",data:data.map(x=>({x:x.time.getTime(),y:x.value})),
-    borderColor:"#1769aa",backgroundColor:"rgba(23,105,170,.08)",borderWidth:3,pointRadius:2,tension:.25,fill:station.id!=="kuniyasu",order:10
+    label:"水位",
+    data:data.map(x=>({x:x.time.getTime(),y:x.value})),
+    borderColor:"#1769aa",
+    backgroundColor:"rgba(23,105,170,.08)",
+    borderWidth:3,
+    pointRadius:2,
+    tension:.25,
+    fill:"start",
+    order:10
   },...makeLevelDatasets(station,data)];
-
-  // 国安は「青の塗りつぶし」をグラフ下部に固定する。
-  if(station.id==="kuniyasu"){
-    datasets[0].fill="origin";
-    datasets[0].backgroundColor="rgba(23,105,170,.10)";
-  }
 
   charts[station.id]=new Chart(canvas,{
     type:"line",data:{datasets},

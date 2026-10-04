@@ -1,24 +1,211 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>山田川 河川監視</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河川・雨量監視</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                "Hiragino Kaku Gothic ProN",
+                "Yu Gothic",
+                Meiryo,
+                sans-serif;
+            background: #f4f7f9;
+            color: #333;
+        }
+
+        header {
+            background: #1976d2;
+            color: white;
+            text-align: center;
+            padding: 32px 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        header p {
+            margin: 10px 0 0;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .section-title p {
+            margin-top: 8px;
+            color: #666;
+        }
+
+        .monitor-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .monitor-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px 24px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .monitor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .monitor-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .monitor-card h3 {
+            margin: 8px 0 10px;
+            font-size: 21px;
+        }
+
+        .monitor-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+            min-height: 48px;
+        }
+
+        .monitor-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 11px 28px;
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .monitor-button:hover {
+            background: #125aa0;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 25px 15px;
+            }
+
+            header h1 {
+                font-size: 25px;
+            }
+
+            main {
+                margin-top: 30px;
+            }
+
+            .monitor-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
+
 <header>
-  <div><h1>山田川 河川監視</h1><p>上流から下流へ、ダム・河川カメラ・水位をまとめて確認</p></div>
-  <button id="refreshBtn">↻ 更新</button>
+    <h1>河川・雨量監視</h1>
+    <p>河川水位・ダム・雨量などの防災情報</p>
 </header>
+
 <main>
-  <section class="summary"><h2>観測地点</h2><div id="stationSummary"></div></section>
-  <div id="message">データを取得しています…</div>
-  <div id="updatedAt"></div>
-  <section id="stationList"></section>
+
+    <div class="section-title">
+        <h2>監視ページ</h2>
+        <p>確認したい情報を選択してください。</p>
+    </div>
+
+    <div class="monitor-list">
+
+        <!-- 浅川 -->
+        <div class="monitor-card">
+            <div class="monitor-icon">🌊</div>
+            <h3>浅川 河川監視</h3>
+            <p>
+                浅川の河川水位や<br>
+                その他の河川情報を確認できます。
+            </p>
+            <a class="monitor-button" href="asakawa/">
+                浅川を開く
+            </a>
+        </div>
+
+        <!-- 山田川 -->
+        <div class="monitor-card">
+            <div class="monitor-icon">🌊</div>
+            <h3>山田川 河川監視</h3>
+            <p>
+                山田川の河川水位・ダム・<br>
+                カメラなどを確認できます。
+            </p>
+            <a class="monitor-button" href="yamada/">
+                山田川を開く
+            </a>
+        </div>
+
+        <!-- 雨量 -->
+        <div class="monitor-card">
+            <div class="monitor-icon">🌧️</div>
+            <h3>雨量監視</h3>
+            <p>
+                雨量観測情報や<br>
+                降雨状況を確認できます。
+            </p>
+            <a class="monitor-button" href="rainfall/">
+                雨量監視を開く
+            </a>
+        </div>
+
+    </div>
+
 </main>
-<footer>水位・ダムデータ：茨城県公式河川情報API ／ 河川カメラ：各公式カメラ画像</footer>
-<script src="script.js"></script>
+
+<footer>
+    河川・雨量監視
+</footer>
+
 </body>
 </html>

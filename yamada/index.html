@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>山田川 河川監視</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header>
+  <div><h1>山田川 河川監視</h1><p>上流から下流へ、ダム・河川カメラ・水位をまとめて確認</p></div>
+  <button id="refreshBtn">↻ 更新</button>
+</header>
+<main>
+  <section class="summary"><h2>観測地点</h2><div id="stationSummary"></div></section>
+  <div id="message">データを取得しています…</div>
+  <div id="updatedAt"></div>
+  <section id="stationList"></section>
+</main>
+<footer>水位・ダムデータ：茨城県公式河川情報API ／ 河川カメラ：各公式カメラ画像</footer>
+<script src="script.js"></script>
+</body>
+</html>
